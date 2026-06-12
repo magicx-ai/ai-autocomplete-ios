@@ -9,7 +9,8 @@ Sections are written by the release workflow from its "What changed" input
 
 ## [1.1.0] - 2026-06-12
 
-- Update keyboard return key appearance & behavior/n - Update Documentation 
+- Update keyboard return key appearance & behavior
+- Update Documentation
 
 ## [1.0.0] - 2026-06-12
 
