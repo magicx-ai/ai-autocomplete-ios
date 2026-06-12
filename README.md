@@ -1,8 +1,8 @@
 # AIAutocompleteKit
 
-AI-powered autocomplete for iOS. As the user types, the SDK suggests query completions with inline **pills** for unfilled parameters (e.g. `[type]`, `[goal]`) and a dropdown of tappable options for the active pill — the same server contract and behavior as the MagicX React SDK, adapted to native iOS idioms.
+AI-powered autocomplete for iOS. As the user types, the SDK suggests query completions with inline **pills** for unfilled parameters (e.g. `[type]`, `[goal]`) and a dropdown of tappable options for the active pill.
 
-The SDK ships as three SwiftPM libraries (pick one — each pulls in the layers beneath it):
+Three SwiftPM libraries — pick one; each pulls in the layers beneath it:
 
 | Product | What you get | Use when |
 | --- | --- | --- |
@@ -12,15 +12,12 @@ The SDK ships as three SwiftPM libraries (pick one — each pulls in the layers 
 
 ## Requirements
 
-- iOS 17.0+
-- Xcode 16+ (the binaries ship as library-evolution XCFrameworks built from public `.swiftinterface`)
-- A MagicX API key or access-token endpoint (the SDK is gated by API credentials, not by package access)
+- iOS 17.0+, Xcode 16+
+- A MagicX API key or access-token endpoint
 
 ## Installation
 
-The SDK is distributed as a public, binary-only SwiftPM package — pre-compiled XCFrameworks plus a consumer manifest. No account or auth is needed to install it.
-
-**Xcode:** File → Add Package Dependencies → `https://github.com/magicx-ai/ai-autocomplete-ios.git`, dependency rule "Up to Next Major" from `1.0.0`, then add the one product matching your UI layer.
+**Xcode:** File → Add Package Dependencies → `https://github.com/magicx-ai/ai-autocomplete-ios.git`, dependency rule "Up to Next Major", then add the product matching your UI layer.
 
 **Package.swift:**
 
@@ -38,7 +35,7 @@ targets: [
 ]
 ```
 
-The frameworks are static — nothing to embed, and unused code is stripped from your app at link time.
+The package is binary-only: installing downloads pre-compiled static XCFrameworks — no account needed, nothing to embed, unused code is stripped at link time.
 
 ## Quick start — SwiftUI
 
@@ -61,6 +58,8 @@ struct SearchView: View {
     }
 }
 ```
+
+The keyboard's return key renders as a search key and runs the same submit-and-reset sequence as the submit button; pasted line breaks are flattened to spaces, so the query stays a single line.
 
 Add a custom submit button and a themed appearance:
 
@@ -102,7 +101,7 @@ The view grows with its content (input wraps, dropdown opens below or above per 
 
 ## Tier 2 — your input, our dropdown
 
-Keep your own text field and drive the shared `AIAutocompleteController`; the dropdown view renders the controller's state. Forward text changes with `updateText(_:)` and read `controller.text` back when the controller mutates it (option selection appends to the query).
+Keep your own text field and drive the shared `AIAutocompleteController`; the dropdown renders the controller's state. `controller.textBinding` wires the field both ways — your edits route through the controller, and controller-side mutations (option selection appends to the query) flow back.
 
 ```swift
 import SwiftUI
@@ -113,14 +112,11 @@ struct ComposerView: View {
     @State private var controller = AIAutocompleteController(
         configuration: .init(apiConfig: .apiKey(.init(apiKey: Secrets.autocompleteKey)))
     )
-    @State private var text = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            TextField("Ask anything…", text: $text)
+            TextField("Ask anything…", text: controller.textBinding)
                 .textFieldStyle(.roundedBorder)
-                .onChange(of: text) { _, newValue in controller.updateText(newValue) }
-                .onChange(of: controller.text) { _, newValue in text = newValue }
 
             AIAutocompleteDropdown(controller: controller)
         }
@@ -130,7 +126,7 @@ struct ComposerView: View {
 }
 ```
 
-UIKit equivalent: create `AIAutocompleteDropdownView(controller:)`, add it below your input, and call `controller.updateText(_:)` from your text-change handler. `moveHighlight(by:)` / `selectHighlighted()` wire up hardware-keyboard arrow/return navigation.
+UIKit equivalent: add `AIAutocompleteDropdownView(controller:)` below your input and call `controller.updateText(_:)` from your text-change handler. The dropdown view's `moveHighlight(by:)` / `selectHighlighted()` wire up hardware-keyboard arrow/return navigation.
 
 ## Authentication
 
@@ -146,7 +142,9 @@ Two modes, chosen by the `apiConfig` case:
 .accessToken(.init(
     getAccessToken: {
         let token = try await MyAuthAPI.mintAutocompleteToken()
-        return AccessToken(accessToken: token.value, expiresAt: token.expiresAt)
+        // expiresAt is a UNIX timestamp in milliseconds; nil disables
+        // proactive refresh (re-fetch only on 401).
+        return AccessToken(accessToken: token.value, expiresAt: token.expiresAtMs)
     }
 ))
 ```
@@ -200,6 +198,4 @@ appearance.maxInputLines = 4
 .aiAutocompleteAppearance(appearance)       autocompleteView.appearance = appearance
 ```
 
-## Versioning
-
-Strict [semver](https://semver.org) from `1.0.0`; pre-releases use `1.0.0-rc.1` tags. Update by bumping your version constraint — each tag is immediately resolvable. Per-version release notes, `.xcframework.zip` artifacts, SHA256 checksums, and DocC archives are attached to the [GitHub Releases](https://github.com/magicx-ai/ai-autocomplete-ios/releases).
+Per-version release notes and DocC archives are attached to the [GitHub Releases](https://github.com/magicx-ai/ai-autocomplete-ios/releases).
