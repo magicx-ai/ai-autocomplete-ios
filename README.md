@@ -1,14 +1,14 @@
 # AIAutocompleteKit
 
-AI-powered autocomplete for iOS. As the user types, the SDK suggests query completions with inline **pills** for unfilled parameters (e.g. `[type]`, `[goal]`) and a dropdown of tappable options for the active pill.
+An SDK that provides a guided, AI-powered autocomplete experience with pill-based input and dropdown suggestions. As the user types, the SDK suggests query completions with inline **pills** for unfilled parameters (e.g. `[type]`, `[goal]`) and a dropdown of tappable options for the active pill.
 
 Three SwiftPM libraries — pick one; each pulls in the layers beneath it:
 
 | Product | What you get | Use when |
 | --- | --- | --- |
-| `AIAutocompleteSwiftUI` | `AIAutocomplete` view + modifiers | Your screen is SwiftUI |
-| `AIAutocompleteUIKit` | `AIAutocompleteView` (input + dropdown), `AIAutocompleteDropdownView` | Your screen is UIKit |
-| `AIAutocompleteCore` | Headless `AIAutocompleteController` (state machine + networking, no UI) | You render everything yourself |
+| `AIAutocompleteSwiftUI` | `AIAutocomplete` (complete input + dropdown) · `AIAutocompleteDropdown` view or `.aiAutocompleteDropdown(_:)` modifier | Your screen is SwiftUI and you want drop-in views |
+| `AIAutocompleteUIKit` | `AIAutocompleteView` (complete input + dropdown) · `AIAutocompleteDropdownView` | Your screen is UIKit and you want drop-in views |
+| `AIAutocompleteCore` | `AIAutocompleteController` — headless state machine + networking, no UI | You render everything yourself |
 
 ## Requirements
 
