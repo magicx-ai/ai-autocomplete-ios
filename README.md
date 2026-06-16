@@ -59,8 +59,6 @@ struct SearchView: View {
 }
 ```
 
-The keyboard's return key renders as a search key and runs the same submit-and-reset sequence as the submit button; pasted line breaks are flattened to spaces, so the query stays a single line.
-
 Add a custom submit button and a themed appearance:
 
 ```swift
@@ -167,7 +165,7 @@ AIAutocompleteController.Configuration(
     ],
     dropdownTrigger: .auto,        // .auto | .manual | .hidden
     optionsPosition: .below,       // dropdown above or below the input
-    pillPlacement: .inline,        // .inline | .dropdown | .hidden
+    pillPlacement: .dropdown,      // .dropdown | .inline | .hidden
     autoFocus: true,
     onError: { error in
         // Terminal errors only; cancellations never reach this. The UI keeps
