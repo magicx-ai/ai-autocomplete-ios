@@ -7,6 +7,15 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follo
 Sections are written by the release workflow from its "What changed" input
 (Actions → Release → Run workflow) — see the Releases section of CLAUDE.md.
 
+## [1.4.0] - 2026-07-23
+
+- Suggestion pills redesigned as transparent chips with a dashed outline, with new appearance tokens to customize it: pillBorderColor, pillBorderWidth, and pillBorderStyle (.dashed or .solid); pillBackgroundColor now defaults to clear.
+- Completed parameters now render as compact highlighted chips, matching the web SDK. Emphasis is configurable via completedParamEmphasis — chip fill (default), semibold text, both, or neither — with new fill tokens completedParamBackgroundColor and completedParamActiveBackgroundColor (the darker fill shown while re-editing).
+- The dropdown now stays open when the active pill genuinely has no options (or only non-tappable hints with showNonTappableOptions off), keeping its pill chip visible; with inline pill placement, an empty dropdown no longer lingers.
+- Tapping outside a parameter being re-edited now exits re-edit mode.
+- Fixed completed-chip rendering issues: uneven inner padding, spacing between adjacent chips, chips wrapping across lines, and broken padding after backspacing flush against a chip.
+- optionOverrides now fully replace server-supplied options in stored state instead of merging with them.
+
 ## [1.3.0] - 2026-06-19
 
 - UIKit `AIAutocompleteView` dropdown now floats over surrounding content instead of pushing it in-flow, matching the SwiftUI wrapper and the React SDK.
