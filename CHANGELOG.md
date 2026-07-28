@@ -7,6 +7,10 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follo
 Sections are written by the release workflow from its "What changed" input
 (Actions → Release → Run workflow) — see the Releases section of CLAUDE.md.
 
+## [1.4.1] - 2026-07-28
+
+- The dropdown brand link now carries utm_source
+
 ## [1.4.0] - 2026-07-23
 
 - Suggestion pills redesigned as transparent chips with a dashed outline, with new appearance tokens to customize it: pillBorderColor, pillBorderWidth, and pillBorderStyle (.dashed or .solid); pillBackgroundColor now defaults to clear.
