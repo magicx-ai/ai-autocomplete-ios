@@ -7,6 +7,17 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follo
 Sections are written by the release workflow from its "What changed" input
 (Actions → Release → Run workflow) — see the Releases section of CLAUDE.md.
 
+## [1.5.0] - 2026-08-12
+
+### Added
+- Redesigned input and dropdown to match the design system: plain small-caps parameter pills (no outline by default), 16pt input text and options, and darker option text.
+- iOS 26 Liquid Glass dropdown surface — release binaries are now built with Xcode 26, so the glass surface ships in the framework.
+- `maxVisibleOptionRows` appearance token (default 5) — caps the dropdown at five option rows and scrolls the rest, rather than expanding to fill the available space (whether it opens below or above the input).
+- LLM-identified parameters are recognized in the user's text and rendered as compact chips, like completed parameters.
+
+### Changed
+- Suggestions now refetch after every answered parameter. Each selection is sent to the server immediately so the next parameter is conditioned on it — requests are more frequent, and a brief loading state appears where cached options previously showed instantly.
+
 ## [1.4.1] - 2026-07-28
 
 - The dropdown brand link now carries utm_source

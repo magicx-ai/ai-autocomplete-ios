@@ -12,7 +12,7 @@ Three SwiftPM libraries — pick one; each pulls in the layers beneath it:
 
 ## Requirements
 
-- iOS 17.0+, Xcode 16+
+- iOS 17.0+ deployment target; Xcode 26+ to build (release binaries ship Swift 6.2 module interfaces, which older compilers cannot import)
 - A MagicX API key or access-token endpoint
 
 ## Installation
