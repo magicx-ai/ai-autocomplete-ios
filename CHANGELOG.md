@@ -7,6 +7,30 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follo
 Sections are written by the release workflow from its "What changed" input
 (Actions → Release → Run workflow) — see the Releases section of CLAUDE.md.
 
+## [1.6.0] - 2026-08-14
+
+### New stock appearance
+- Completed params render as solid high-contrast capsules (black on light, white on dark) with inverse ink and roomier padding
+- The active param pill shows a solid hollow outline; queued pills wait borderless behind it
+- Options at 14pt with increased spacing; input line spacing increased; brand footer hidden by default
+- Every previous default remains one appearance token away — nothing was removed
+
+### Dropdown
+- Options wrap to as many lines as they need instead of truncating
+- Option spacing configurable via `optionVerticalPadding`
+
+### Styling
+- Eight new `AIAutocompleteAppearance` tokens: `optionVerticalPadding`, `optionSelectedFontWeight`, `completedParamTextColor`, `completedParamHorizontalPadding` / `completedParamVerticalPadding`, `completedParamShimmerColor`, `showsInactivePillBorders`, `showBrandFooter`
+
+### SwiftUI
+- `.submitButtonHidden()` hides the built-in submit button
+- `.dropdownHidden()` detaches the dropdown so it can anchor to your own container via `.aiAutocompleteDropdown`
+
+### Fixes
+- Caret is no longer hidden inside the completed-param chip after answering
+- Completing a param that wraps the input now scrolls fully into view
+- Dropdown option width/spacing renders exactly as measured
+
 ## [1.5.0] - 2026-08-12
 
 ### Added
