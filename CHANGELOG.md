@@ -7,6 +7,17 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follo
 Sections are written by the release workflow from its "What changed" input
 (Actions → Release → Run workflow) — see the Releases section of CLAUDE.md.
 
+## [1.6.3] - 2026-08-14
+
+### Styling
+- Completed-param chips now default to a 6pt corner radius (previously fully rounded capsules)
+- New `completedParamCornerRadius` appearance token to tune or restore the old look
+
+### Fixes
+- Dropdown positioned above the input no longer intermittently collapses to a single row with scrolling disabled — most visible with multi-line options in multi-column layouts, e.g. when re-editing a completed param
+- A dropdown showing less than its full content now always scrolls, so no option can be left unreachable
+- Transient height mis-measurements during layout settle now self-correct instead of freezing the dropdown short
+
 ## [1.6.1] - 2026-08-14
 
 - Small bug fixes
