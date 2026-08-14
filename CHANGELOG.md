@@ -7,6 +7,10 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follo
 Sections are written by the release workflow from its "What changed" input
 (Actions → Release → Run workflow) — see the Releases section of CLAUDE.md.
 
+## [1.6.1] - 2026-08-14
+
+- Small bug fixes
+
 ## [1.6.0] - 2026-08-14
 
 ### New stock appearance

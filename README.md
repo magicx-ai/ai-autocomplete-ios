@@ -59,7 +59,8 @@ struct SearchView: View {
 }
 ```
 
-Add a custom submit button and a themed appearance:
+Add a custom submit button and a themed appearance — or hide the submit
+button entirely (the keyboard return key still submits):
 
 ```swift
 AIAutocomplete(configuration: configuration)
@@ -67,6 +68,9 @@ AIAutocomplete(configuration: configuration)
         Image(systemName: "arrow.up.circle.fill")
     }
     .aiAutocompleteAppearance(brandAppearance)
+
+AIAutocomplete(configuration: configuration)
+    .submitButtonHidden()
 ```
 
 ## Quick start — UIKit
@@ -96,6 +100,32 @@ final class SearchViewController: UIViewController {
 ```
 
 The view grows with its content (input wraps, dropdown opens below or above per `optionsPosition`) — pin top/leading/trailing and let it size itself.
+
+(UIKit's custom-button and hide equivalents: `autocomplete.submitButtonView = myButton`, `autocomplete.showsSubmitButton = false`.)
+
+## Detached dropdown — full input, your anchor
+
+When the input sits inside a larger container — a card with attachment and
+action buttons, say — the dropdown should usually align to the *container's*
+edge, not the bare input. Keep the full pill input and detach the dropdown,
+anchoring it to any view; both read the same controller:
+
+```swift
+// SwiftUI
+VStack {
+    AIAutocomplete(controller: controller)
+        .dropdownHidden()          // input only — no built-in dropdown
+    actionButtonRow
+}
+.aiAutocompleteDropdown(controller)    // dropdown aligns to the card
+```
+
+```swift
+// UIKit
+let input = AIAutocompleteView(controller: controller, showsDropdown: false)
+let dropdown = AIAutocompleteDropdownView(controller: controller)
+// Add both to your hierarchy; pin the dropdown to the container's edge.
+```
 
 ## Tier 2 — your input, our dropdown
 

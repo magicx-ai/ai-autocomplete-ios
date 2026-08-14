@@ -27,18 +27,18 @@ let package = Package(
     targets: [
         .binaryTarget(
             name: "AIAutocompleteCore",
-            url: "https://github.com/magicx-ai/ai-autocomplete-ios/releases/download/1.6.0/AIAutocompleteCore.xcframework.zip",
-            checksum: "1e71ef195be3b99964a2d3e95ca84b3f89ffa07f6a40fd7646fe17ac3a4304f7"
+            url: "https://github.com/magicx-ai/ai-autocomplete-ios/releases/download/1.6.1/AIAutocompleteCore.xcframework.zip",
+            checksum: "b0d504d6c9b605d27b0cc36fecaab5146a870d24eae7a7477e336463b73de3aa"
         ),
         .binaryTarget(
             name: "AIAutocompleteUIKit",
-            url: "https://github.com/magicx-ai/ai-autocomplete-ios/releases/download/1.6.0/AIAutocompleteUIKit.xcframework.zip",
-            checksum: "04fa1a086ffe9dddd153221a37c1d04c6c0ba359b22f6a84636e26f441747c9e"
+            url: "https://github.com/magicx-ai/ai-autocomplete-ios/releases/download/1.6.1/AIAutocompleteUIKit.xcframework.zip",
+            checksum: "9de45cd3b300766636f7e7369edea1b4da646c5b0ce4e7aae91f5ccc9cbfdd8f"
         ),
         .binaryTarget(
             name: "AIAutocompleteSwiftUI",
-            url: "https://github.com/magicx-ai/ai-autocomplete-ios/releases/download/1.6.0/AIAutocompleteSwiftUI.xcframework.zip",
-            checksum: "14595a70ad8a2728572dfde324792bf3129367603f9691c0fc2bf40069857618"
+            url: "https://github.com/magicx-ai/ai-autocomplete-ios/releases/download/1.6.1/AIAutocompleteSwiftUI.xcframework.zip",
+            checksum: "b2fe71ceb5f5049639e300df545223be44bd6d772eb944443a060b25044324a2"
         )
     ]
 )
