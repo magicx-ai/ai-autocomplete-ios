@@ -7,6 +7,18 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follo
 Sections are written by the release workflow from its "What changed" input
 (Actions → Release → Run workflow) — see the Releases section of CLAUDE.md.
 
+## [1.7.0] - 2026-08-17
+
+### Skip suggestions
+- A new **skip** button at the trailing edge of the dropdown's pill bar lets users dismiss the active parameter without answering it. Skipped params are echoed to the server so it stops re-suggesting them.
+- `AIAutocompleteController.skipActivePill()` — headless skip API for custom UIs, alongside a `skippedParams` property.
+- `Configuration.showSkipButton` (default `true`) — opt out of the built-in button (consulted for `.dropdown` pill placement).
+- New `AIAutocompleteAppearance.skipButtonTextColor` token for the button's resting ink.
+- The button hides during re-edit, while the input is empty, and when there's no real pill to skip; it's disabled during the brief selection animation.
+
+### Fixes
+- Dropdown parameter pills no longer play a brief "swipe to reveal" wipe when they change (most visible right after tapping skip).
+
 ## [1.6.3] - 2026-08-14
 
 ### Styling
