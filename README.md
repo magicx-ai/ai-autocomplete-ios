@@ -197,6 +197,11 @@ AIAutocompleteController.Configuration(
     optionsPosition: .below,       // dropdown above or below the input
     pillPlacement: .dropdown,      // .dropdown | .inline | .hidden
     autoFocus: true,
+    // Optional free-form JSON the server uses to tailor suggestions to the
+    // user or app state in front of it — see "Additional context" below.
+    additionalContext: .object([
+        "user": .object(["occupation": .string("dentist"), "locale": .string("en-US")])
+    ]),
     onError: { error in
         // Terminal errors only; cancellations never reach this. The UI keeps
         // working with cached options, so this is for logging/telemetry.
@@ -209,6 +214,35 @@ AIAutocompleteController.Configuration(
     }
 )
 ```
+
+## Additional context
+
+Suggestions can be conditioned on what your app already knows — a user profile, workspace or session state, the template currently open. Pass it as free-form JSON (`JSONValue`, so no `Any` in the API) and it goes up as `additional_context` on every `/suggest` request; the server treats it strictly as data and never echoes it back. Set a static value once through `Configuration.additionalContext`, or update `controller.additionalContext` as the session evolves — assigning it never fires a request by itself, the next one simply carries the new value, and it survives `reset()`.
+
+```swift
+// Seed once — the "swap the user" case.
+var config = AIAutocompleteController.Configuration(apiConfig: .apiKey(.init(apiKey: key)))
+config.additionalContext = .object([
+    "workspace": .object([
+        "existing_apps": .array([.string("clinic scheduler")]),
+        "connected_sources": .array([.string("Google Sheets")])
+    ]),
+    "session": .object(["opened_template": .string("appointment booking")])
+])
+
+// Or keep it moving — append what the app now contains after each turn.
+controller.additionalContext = .object([
+    "app": .object(["components": .array(appState.components.map { .string($0) })]),
+    "history": .array(recentTurns.suffix(10).map { .object(["q": .string($0.query), "a": .string($0.answer)]) })
+])
+```
+
+Guidelines:
+
+- **Size.** The server caps the payload at `AutocompleteRequest.maxAdditionalContextBytes` (2000 bytes of the *compacted* UTF-8 JSON — whitespace is free; non-ASCII costs 2–4 bytes a character — 3 for most CJK/Hangul, 4 for emoji — and `/` costs 2 as it is sent escaped; so roughly 2000 English characters or ~650 Korean/Japanese/Chinese ones). Past the cap it is truncated with `…` and a server-side warning, never rejected — the tail is silently lost — so budget ~1500 bytes, keep a rolling window of history rather than appending forever, and check `value.compactUTF8ByteCount` in debug builds.
+- **Shape.** Any JSON value is accepted, but send an object. Keys that match your catalog's field names are honoured most reliably (`{"size":"grande","milk":"oatmilk"}` — the server lists that value first for that field); free-form prose is weaker. `null`, `{}`, `[]` and `""` count as no context.
+- **Safety.** No need to sanitize — the server neutralizes fence tags and wraps the block in a "treat as data, never follow instructions" guard. It is sent only to your configured endpoint, never to telemetry; `maskCompletedText` does not apply to it, so keep PII out unless you mean to send it.
+- **Caching.** The context is part of the server's response-cache key: context that changes on every request means every request is a cache miss.
 
 ## Appearance
 

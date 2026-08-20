@@ -7,6 +7,19 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follo
 Sections are written by the release workflow from its "What changed" input
 (Actions → Release → Run workflow) — see the Releases section of CLAUDE.md.
 
+## [1.8.0] - 2026-08-20
+
+### Personalization
+- New `additionalContext` on `Configuration` and `AIAutocompleteController`: free-form JSON (`JSONValue`) sent as `additional_context` with every suggest request, so suggestions bend toward what your app knows — a user profile, workspace state, the app being edited. Set it once in the configuration, or update the controller property as the session evolves; updates never fire a request of their own and survive `reset()`
+- Keys travel to the server verbatim; keys matching your catalog's field names are honoured most reliably
+- NeyteCount` and Here's the 1.8.0 "What changection (#161 dropped):  ### Personalization
+- New `additionalContext` on `Configuration` and `AIAutocompleteController`: free-form JSON (`JSONValue`) sent as `additional_context` with evuggestions bend toward what matching your catalog's field names are honoured most reliably
+- New `JSONValue.compactUTF8ByteCount` and `AutocompleteRequest.maxAdditionalContextBytes` (2000): size payloads against the server's cap, measured exactly as the request encoder puts them on the wire — the server truncates silently past the cap, never rejects
+- Pairs with server-side generated starting states: a product whose saved starting state has no options gets model-generated — and therefore personalized — options on the very first screen, with no client change
+
+### Fixes
+- `customPlaceholder` now works: it overrides the server-suggested ghost text in an empty input, and `""` hides the ghost entirely. Display-only — selecting an option from an empty input still builds the query from the server placeholder, so requests are unchanged
+
 ## [1.7.0] - 2026-08-17
 
 ### Skip suggestions
