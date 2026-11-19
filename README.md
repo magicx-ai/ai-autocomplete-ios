@@ -10,6 +10,40 @@ Three SwiftPM libraries — pick one; each pulls in the layers beneath it:
 | `AIAutocompleteUIKit` | `AIAutocompleteView` (complete input + dropdown) · `AIAutocompleteDropdownView` | Your screen is UIKit and you want drop-in views |
 | `AIAutocompleteCore` | `AIAutocompleteController` — headless state machine + networking, no UI | You render everything yourself |
 
+
+## Migrating from 1.8 to 2.0
+
+Version 2.0 uses `/api/suggest` schema **1.0**. Deploy server support before updating the SDK; every request now sends `meta.schema_version: "1.0"` and responses expose the echoed `schemaVersion`.
+
+| Previous API | Version 2.0 |
+|---|---|
+| Parameter identifier `type` | `parameter` on suggestions, input, completed/identified/skipped state, and recent hints |
+| `suggestionType` | `suggestionParameter` |
+| `IdentifiedParam(type:value:)` | `IdentifiedParam(parameter:text:)` |
+| `Suggestion.formatType` | `Suggestion.type: SuggestionType?` (`kind`, `dateFormat`, `separator`, `unit`) |
+| `FormatType.resolve(type:declared:options:)` | `FormatType.resolve(declared:)` — the server's `SuggestionType` alone picks the calendar; names and options are no longer read |
+
+`SuggestionOption.parameter` identifies the parameter that selecting the option answers. The SDK preserves it through taps, keyboard selection, exact-match promotion, and re-edit; a mixed block's general name remains in `suggestionParameter`. Consumer override dictionaries are keyed by the block's `parameter`, and omitted parameters on client-created options receive that key.
+
+`SuggestionOption.value` carries a canonical catalog value separate from its display label. The SDK sends a non-empty `value` as completed-param `text` and uses the label in the visible input and chips. Submit callbacks return the same canonical completed params. `maskCompletedText` masks canonical values as well as display text.
+
+Date suggestions use a `SuggestionType` descriptor:
+
+```swift
+let suggestion = Suggestion(
+    parameter: "travel",
+    text: "Travel dates",
+    required: true,
+    options: [],
+    type: SuggestionType(kind: "date_range", dateFormat: "DD/MM/YYYY", separator: " to ")
+)
+```
+
+The native range picker confirms a start and end date before sending one answer. Re-edit preserves the descriptor and reopens the existing endpoints. Custom dropdowns can read `calendarParameter`, `calendarType`, `dateRangeStartISO`, and `selectedDateRangeEndISO`; calendar options flow through `selectOption` like other options.
+
+Use a 2.0 release from `magicx-ai/ai-autocomplete-ios` once published. The source repo's release workflow builds all three XCFrameworks, publishes the binary assets, and generates the checksum-pinned package manifest. Update before the server's legacy-interface window closes.
+
+
 ## Requirements
 
 - iOS 17.0+ deployment target; Xcode 26+ to build (release binaries ship Swift 6.2 module interfaces, which older compilers cannot import)
@@ -17,13 +51,13 @@ Three SwiftPM libraries — pick one; each pulls in the layers beneath it:
 
 ## Installation
 
-**Xcode:** File → Add Package Dependencies → `https://github.com/magicx-ai/ai-autocomplete-ios.git`, dependency rule "Up to Next Major", then add the product matching your UI layer.
+**Xcode:** File → Add Package Dependencies → `https://github.com/magicx-ai/ai-autocomplete-ios.git`, dependency rule "Up to Next Major" starting at `2.0.0`, then add the product matching your UI layer.
 
 **Package.swift:**
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/magicx-ai/ai-autocomplete-ios.git", from: "1.0.0")
+    .package(url: "https://github.com/magicx-ai/ai-autocomplete-ios.git", from: "2.0.0")
 ],
 targets: [
     .target(
@@ -102,6 +136,8 @@ final class SearchViewController: UIViewController {
 The view grows with its content (input wraps, dropdown opens below or above per `optionsPosition`) — pin top/leading/trailing and let it size itself.
 
 (UIKit's custom-button and hide equivalents: `autocomplete.submitButtonView = myButton`, `autocomplete.showsSubmitButton = false`.)
+
+The built-in button is grey until the query is ready, then turns to the accent color. Set `submitButtonIdleBackgroundColor` and `submitButtonIdleForegroundColor` on the appearance to the ready colors to keep it dark all the time.
 
 ## Detached dropdown — full input, your anchor
 
@@ -185,11 +221,14 @@ Both cases accept `endpoint:` (defaults to the production suggest endpoint), `ap
 AIAutocompleteController.Configuration(
     apiConfig: .apiKey(.init(apiKey: Secrets.autocompleteKey)),
     optionOverrides: [
-        // Replace or augment server options for a suggestion type with
-        // client-side data, re-evaluated on every keystroke.
-        "project": { query in
-            myProjects
-                .filter { query.isEmpty || $0.name.localizedCaseInsensitiveContains(query) }
+        // Supply the options for a suggestion parameter yourself; the server's
+        // are never shown for it. Asked the moment the pill becomes active
+        // (with whatever has been typed for it, usually ""), and again on the
+        // typing debounce with each new phrase, so the answer can come from
+        // your own search endpoint. It is listed exactly as returned; return
+        // an empty array to hand that phrase back to the server.
+        "project": { query, _ in
+            try await myProjectSearch.results(matching: query)
                 .map { SuggestionOption(text: $0.name, isTappable: true) }
         }
     ],
@@ -202,6 +241,11 @@ AIAutocompleteController.Configuration(
     additionalContext: .object([
         "user": .object(["occupation": .string("dentist"), "locale": .string("en-US")])
     ]),
+    // BCP 47 tag sent as meta.language and on telemetry events, and the language of the SDK's own
+    // words (skip, Done, ...). nil (the default) sends the device language and draws English words.
+    language: "es",
+    // Shopper's presentment currency; sent only with a non-empty code and a finite rate > 0.
+    currency: CurrencyOptions(code: "CAD", rate: 1.35, country: "CA"),
     onError: { error in
         // Terminal errors only; cancellations never reach this. The UI keeps
         // working with cached options, so this is for logging/telemetry.
@@ -211,6 +255,14 @@ AIAutocompleteController.Configuration(
         // result.query — display text; result.rawQuery + result.completedParams —
         // the structured form your backend receives.
         startSearch(result)
+    },
+    onResult: { result in
+        // The same payload, delivered after *every* successful round-trip
+        // rather than only on submit — mirror the query as it is built (a live
+        // preview, a saved draft, analytics). Never fires for a failed,
+        // cancelled or superseded request. `controller.currentResult` answers
+        // the same question on demand, including keystrokes not yet sent.
+        saveDraft(result)
     }
 )
 ```
@@ -255,9 +307,14 @@ appearance.pillBackgroundColor = .systemIndigo.withAlphaComponent(0.15)
 appearance.pillTextColor = .systemIndigo
 appearance.dropdownCornerRadius = 12
 appearance.maxInputLines = 4
+appearance.mode = .dark
 
 // SwiftUI                                  // UIKit
 .aiAutocompleteAppearance(appearance)       autocompleteView.appearance = appearance
 ```
+
+`appearance.mode` is `.auto` by default, following the surrounding view's interface style. `.light` and `.dark` pin only the autocomplete widget and its children; returning to `.auto` resumes inheritance. This works for both the full input and standalone dropdown. SwiftUI's `.aiAutocompleteAppearance(_:)` forwards the mode to those UIKit views without setting the host window's style or a surrounding `preferredColorScheme`.
+
+Mode changes select the existing dynamic color palette; they do not overwrite either light/dark color value. Fixed `UIColor` values remain fixed. Existing `inputBackgroundColor`, `inputBorderColor`, `inputCornerRadius`, `textColor`, and `font` already cover box and text styling, including font family, size and weight. To change only the typed text's weight (and the placeholder's) while completed params keep `font`, set `writtenTextFontWeight`; `nil`, the default, uses `font` as-is. Defaults are a 6pt input radius, a 6pt dropdown radius with no dropdown shadow, and a Dynamic-Type-scaled 16pt system font. The SDK never fetches saved product appearance: apply any saved design explicitly in your app code.
 
 Per-version release notes and DocC archives are attached to the [GitHub Releases](https://github.com/magicx-ai/ai-autocomplete-ios/releases).
