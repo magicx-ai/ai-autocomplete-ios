@@ -7,7 +7,23 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follo
 Sections are written by the release workflow from its "What changed" input
 (Actions → Release → Run workflow) — see the Releases section of CLAUDE.md.
 
+## [2.1.0] - 2026-11-27
+
+- Rename AI Autocomplete to Intent-1 in customer-visible text, including the "Powered by Intent-1" badge.
+- Add showChipRemove: an × on each pill that removes it.
+- Mark earlier answered dates in the iPhone date picker.
+- Restore the options box to full size.
+- Keep a place recognized as another answer out of the location field.
+- Location field: clear the search the input put there once its words are deleted.
+
 ## [Unreleased]
+
+### Changed
+- The dropdown footer shows "Powered by Intent-1" and links to the Intent-1 product page.
+- The options box is back to full size, undoing 2.0.0's 30% shrink to match the web SDKs: options at 14pt, the option picture (40pt), padding (9.75pt), corner radii and spacing, the skip label and divider, inline option icons, and the product cards and list (`productCardWidth` 116, `productListMaxHeight` 320, `productListImageSize` 44, plus the card and list-row padding, gaps, badge and "Best match" label). The floating card, current-question pill bar and fade are unchanged.
+
+### Added
+- `showChipRemove` (off by default): every completed chip ends in a small, faint "×" that removes the chip in one tap, as Backspace at the chip's trailing edge does. Any re-edit open on a chip closes first, the keyboard stays up, and VoiceOver offers "Remove <value>" on the input. Headless consumers call the new `removeCompletedParam(_:)`. Mirrors the web SDK's `showChipRemove`.
 
 ## [2.0.0] - 2026-11-19
 

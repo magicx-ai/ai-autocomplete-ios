@@ -1,6 +1,8 @@
 # AIAutocompleteKit
 
-An SDK that provides a guided, AI-powered autocomplete experience with pill-based input and dropdown suggestions. As the user types, the SDK suggests query completions with inline **pills** for unfilled parameters (e.g. `[type]`, `[goal]`) and a dropdown of tappable options for the active pill.
+The Swift SDK for Intent-1 provides guided autocomplete on iOS. As the user types, the SDK suggests query completions with inline **pills** for unfilled parameters (e.g. `[type]`, `[goal]`) and a dropdown of tappable options for the active pill.
+
+See [Getting started with Intent-1 for Swift](https://magicx.ai/intent-1/docs/swift/getting-started).
 
 Three SwiftPM libraries — pick one; each pulls in the layers beneath it:
 
